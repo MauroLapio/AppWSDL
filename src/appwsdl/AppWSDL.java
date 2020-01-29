@@ -8,7 +8,8 @@ public class AppWSDL
     public static void main(String[] args)
     {
         Client client = new Client();
-        client.send();
+        client.send("pow", 3, 2);
+        client.send("add",2,2);
         client.close();
     }
     
