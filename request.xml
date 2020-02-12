@@ -1,9 +1,9 @@
 <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:calc">
 <soapenv:Header/>
 <soapenv:Body>
-<urn:add soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-<a xsi:type="xsd:double">2</a>
-<b xsi:type="xsd:double">2</b>
-</urn:add>
+<urn:pow soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<a xsi:type="xsd:double">2.718281828459045</a>
+<b xsi:type="xsd:double">4.0</b>
+</urn:pow>
 </soapenv:Body>
 </soapenv:Envelope>

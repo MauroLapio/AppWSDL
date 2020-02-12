@@ -1,6 +1,5 @@
 package appwsdl;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -9,30 +8,28 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 public class Client
 {
     private Socket socket;
     private PrintWriter out;
+    private Scanner in;
     
     public Client ()
+    {
+        //costruttore vuoto
+    }
+    
+    public void send(String operation, double a, double b)
     {
         try
         {
             socket = new Socket("websrv.cs.fsu.edu", 80);
             out = new PrintWriter(socket.getOutputStream(), true);  //output dell'header
-        }
-        catch(Exception e)
-        {
-            System.out.println("Errore: "+e);
-        }
-    }
-    
-    public void send(String operation, int a, int b)
-    {
-        try
-        {
+            in = new Scanner(socket.getInputStream(), "UTF-8");  //input del socket
+            
             String request =
                     "<soapenv:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:urn=\"urn:calc\">\n" +
                     "<soapenv:Header/>\n" +
@@ -43,14 +40,14 @@ public class Client
                     "</urn:"+operation+">\n" +
                     "</soapenv:Body>\n" +
                     "</soapenv:Envelope>";
-            
+
             File f = new File("./request.xml");
             BufferedWriter writer = new BufferedWriter(new FileWriter("request.xml"));
             writer.write(request);
 
             writer.close();
-            System.out.println("REQUEST:\n"+request+"\n");
-            
+            System.out.println("REQUEST:\n"+request+"\n");  //OUTPUT DELLA RICHIESTA
+
             out.println("POST /~engelen/calcserver.cgi HTTP/1.1");
             out.println("Host: websrv.cs.fsu.edu");
             out.println("Connection: Keep-Alive");
@@ -61,20 +58,20 @@ public class Client
             out.println(content);
             out.flush(); // flush character output stream buffer
             
-            System.out.println("RESPONSE: ");
-            
-            Scanner in = new Scanner(socket.getInputStream());
+            DecimalFormat df = new DecimalFormat("#.#");  //approssimazione dei numeri in output
+
+            System.out.println("RESPONSE: ");  //OUTPUT DELLA RISPOSTA
             String ln;
-            while(in.hasNext())
+            while(in.hasNextLine())
             {
                 ln = in.nextLine();
                 System.out.println(ln);
+                //System.out.println(in.nextLine());
                 if(ln.length()>0 && ln.substring(0,5).equals("<?xml"))  //output del risultato solo della stringa contenente XML
                 {
-                    System.out.println("Result: "+ln.substring(ln.indexOf("<result>")+8,ln.indexOf("</result>"))+"\n");
+                    System.out.println("RESULT OF "+ operation.toUpperCase()+" BETWEEN " + df.format(a) + " AND "+ df.format(b) + " : "+ln.substring(ln.indexOf("<result>")+8,ln.indexOf("</result>"))+"\n");
                 }
             }
-            
         }
         catch(IOException e)
         {
